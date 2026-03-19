@@ -1,0 +1,7 @@
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_render.c:14:6:menu_render	40	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_render.c:43:6:screen_clock	176	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_render.c:143:6:screen_temperature	64	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_render.c:169:6:screen_servo	56	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_render.c:223:6:screen_mpu6050_duplexer	24	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_render.c:241:6:screen_mpu6050_kalman	24	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_render.c:259:6:screen_gif_capoo	24	static

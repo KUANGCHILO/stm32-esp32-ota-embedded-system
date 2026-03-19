@@ -1,0 +1,4 @@
+C:/Users/wp901/Desktop/project/stm32/MENU/Drivers/BSP/HTU21D.c:10:6:HTU21D_Init	24	static
+C:/Users/wp901/Desktop/project/stm32/MENU/Drivers/BSP/HTU21D.c:17:9:HTU21D_ReadUserReg	24	static
+C:/Users/wp901/Desktop/project/stm32/MENU/Drivers/BSP/HTU21D.c:36:7:HTU21D_ReadTemperature	24	static
+C:/Users/wp901/Desktop/project/stm32/MENU/Drivers/BSP/HTU21D.c:49:7:HTU21D_ReadHumidity	24	static

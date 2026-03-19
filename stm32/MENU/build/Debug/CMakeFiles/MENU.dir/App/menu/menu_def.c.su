@@ -1,0 +1,13 @@
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_def.c:34:6:menu_set_parents	24	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_def.c:44:6:MenuInit	8	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_def.c:52:13:GetMenuContext	24	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_def.c:59:6:action_clock	4	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_def.c:69:6:change_colck	24	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_def.c:120:6:action_menu	4	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_def.c:133:6:action_temperature	8	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_def.c:145:6:action_servo	16	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_def.c:159:6:change_servo	32	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_def.c:195:6:action_mpu6050_duplexer	8	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_def.c:206:6:action_mpu6050_kalman	8	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_def.c:217:6:action_gif	4	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_def.c:227:6:action_update	24	static,ignoring_inline_asm

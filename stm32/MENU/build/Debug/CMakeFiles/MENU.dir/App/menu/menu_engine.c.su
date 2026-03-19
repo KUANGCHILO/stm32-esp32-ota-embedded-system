@@ -1,0 +1,4 @@
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_engine.c:7:6:menu_handle_event	24	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_engine.c:66:6:clock_handle_event	24	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_engine.c:111:6:engine_handle_event	16	static
+C:/Users/wp901/Desktop/project/stm32/MENU/App/menu/menu_engine.c:123:6:servo_handle_event	24	static

@@ -1,0 +1,5 @@
+C:/Users/wp901/Desktop/project/stm32/MENU/Drivers/BSP/oled.c:11:9:u8x8_byte_hw_i2c	40	static
+C:/Users/wp901/Desktop/project/stm32/MENU/Drivers/BSP/oled.c:63:6:delay_us	24	static
+C:/Users/wp901/Desktop/project/stm32/MENU/Drivers/BSP/oled.c:70:9:u8x8_gpio_and_delay	32	static,ignoring_inline_asm
+C:/Users/wp901/Desktop/project/stm32/MENU/Drivers/BSP/oled.c:115:6:u8g2Init	16	static
+C:/Users/wp901/Desktop/project/stm32/MENU/Drivers/BSP/oled.c:124:9:oled_get	4	static
