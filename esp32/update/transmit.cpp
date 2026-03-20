@@ -4,11 +4,12 @@
 
 uint32_t crc = 0xFFFFFFFF;
 
-const char* versionUrl = "https://raw.githubusercontent.com/user/repo/main/version.txt";
-const char* updateUrl = "http://example.com/myfile.bin";
-const char* file_path = "/myfile.bin";
+const char* versionUrl = "https://raw.githubusercontent.com/KUANGCHILO/stm32-esp32-ota-embedded-system/refs/heads/main/stm32/MENU/version.txt";
+const char* updateUrl = "https://raw.githubusercontent.com/KUANGCHILO/stm32-esp32-ota-embedded-system/refs/heads/main/stm32/MENU/build/Debug/MENU.bin";
+const char* update_file_path = "/MENU.bin";
+const char* version_file_path = "/version.txt";
 String readVersion() {
-    File f = LittleFS.open("/version.txt", "r");
+    File f = LittleFS.open(version_file_path, "r");
     if (!f) return "unknown";
     String ver = f.readStringUntil('\n');
     f.close();
@@ -69,7 +70,7 @@ FirmwareHeader_t Download_Update(){
     int httpCode = http.GET();
     if (httpCode == 200) {
         // 開檔案準備寫入
-        File file = LittleFS.open(file_path, "w");
+        File file = LittleFS.open(update_file_path, "w");
         
         // 串流寫入，不會一次塞爆 RAM
         WiFiClient* stream = http.getStreamPtr();
@@ -110,7 +111,7 @@ uint32_t CRC32_Software_Chunk(uint8_t *data, uint32_t length)
 }
 
 void Transmit_Update(uint32_t this_chunk,uint32_t received,uint8_t *data){
-    File file = LittleFS.open(file_path, "r");
+    File file = LittleFS.open(update_file_path, "r");
     file.seek(received);
     file.read(data,this_chunk-4);
     uint32_t crc = CRC32_Software_Chunk(data,this_chunk-4);

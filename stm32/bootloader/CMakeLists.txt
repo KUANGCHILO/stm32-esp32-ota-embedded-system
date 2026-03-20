@@ -49,6 +49,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/scroll.c
     ${CMAKE_CURRENT_SOURCE_DIR}/delay/delay.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/oled.c
+    ${U8G2_SOURCES}
 )
 
 # Add include paths

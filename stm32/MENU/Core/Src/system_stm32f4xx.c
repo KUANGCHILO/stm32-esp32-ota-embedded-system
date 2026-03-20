@@ -39,7 +39,9 @@
 /** @addtogroup stm32f4xx_system
   * @{
   */  
-  
+  #define USER_VECT_TAB_ADDRESS
+  #define VECT_TAB_BASE_ADDRESS  0x0800C000U
+  #define VECT_TAB_OFFSET        0x00000000U
 /** @addtogroup STM32F4xx_System_Private_Includes
   * @{
   */

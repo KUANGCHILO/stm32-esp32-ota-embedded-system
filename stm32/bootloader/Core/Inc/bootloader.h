@@ -13,10 +13,13 @@
 #include <string.h>
 #include "scroll.h"
 
-#define APP_ADDRESS (0x08008000U)
+#define APP_ADDRESS (0x0800C000U)
 #define SECTOR2_ADDRESS (0x08008000)
 #define SECTOR6_ADDRESS (0x08040000)
 #define CHECK_SRAM_ADDRESS (0x20017FF8U) //sram範圍 0x20000000 ~ 0x20017FFF 取最後8 bytes
+
+#define RAM_START         0x20000000U
+#define RAM_END_RESERVED  0x20017FF8U
 
 #define UPDATE_NOT_NEEDED  0
 #define UPDATE_REQUESTED   1
@@ -34,8 +37,8 @@
 #define CHUNK_SIZE  (512) //一次只收512bytes
 #define CRC32_BYTES (4)
 
-#define CS_LOW()  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET)
-#define CS_HIGH() HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET)
+#define CS_LOW()  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET)
+#define CS_HIGH() HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET)
 
 extern SPI_HandleTypeDef hspi1;
 typedef void (*pFunction)(void);

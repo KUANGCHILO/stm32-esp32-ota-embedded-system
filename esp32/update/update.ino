@@ -48,9 +48,9 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-    if (slave.remained() == 0) {
-        slave.queue(rx_buf, tx_buf, BUFFER_SIZE);
-    }
+    // if (slave.remained() == 0) {
+    //     slave.queue(rx_buf, tx_buf, BUFFER_SIZE);
+    // }
     memset(tx_buf, 0, sizeof(tx_buf));
     memset(rx_buf, 0, sizeof(rx_buf));
     slave.transfer(tx_buf,rx_buf,sizeof(rx_buf));
@@ -77,5 +77,5 @@ void loop() {
       break;
     }
     memset(rx_buf, 0, sizeof(rx_buf));  // 清空接收緩衝
-    slave.pop();
+    // slave.pop();
 }

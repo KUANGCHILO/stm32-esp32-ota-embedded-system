@@ -24,7 +24,7 @@ void log_print(const char *str)
 void log_display(u8g2_t *u8g2)
 {
     u8g2_ClearBuffer(u8g2);
-    u8g2_SetFont(u8g2, u8g2_font_5x8_tr);   // 5x8 字體
+    u8g2_SetFont(u8g2, u8g2_font_tom_thumb_4x6_tr);   // 4x6 字體
 
     // 決定從哪行開始顯示
     uint8_t start = (log_count > VISIBLE_LINES) ? (log_count - VISIBLE_LINES) : 0;

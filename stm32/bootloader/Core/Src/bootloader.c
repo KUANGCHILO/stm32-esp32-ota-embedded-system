@@ -10,7 +10,7 @@ uint32_t crc;
 void jump_app(void){
     //確認address是否為msp 也就是是否在sram地址範圍中
     uint32_t sp = *(uint32_t*)APP_ADDRESS;
-    if (!(sp >0x20000000U && sp <0x2000FFFFU)) {
+    if (!(sp >RAM_START && sp <=RAM_END_RESERVED)) {
         uint32_t backup_sp = *(uint32_t*)SECTOR6_ADDRESS;
         log_print("App Msp Missed");
         log_display(&u8g2);
@@ -47,12 +47,18 @@ void jump_app(void){
         __set_MSP(*(uint32_t*)APP_ADDRESS);
         //清除check_number
         *(uint8_t*)(CHECK_SRAM_ADDRESS) = 0x00;
+        //啟用中斷
+        __DSB();
+        __ISB();
+        __enable_irq();
+        HAL_DeInit();
+        HAL_RCC_DeInit();
         //跳轉到app
         app_reset_handler();
 }
 
 ////
-//// 擦除sector2~5
+//// 擦除sector3~5
 void Flash_Erase(void){
     log_print("Preparing to erase");        
     log_display(&u8g2); 
@@ -60,8 +66,8 @@ void Flash_Erase(void){
     FLASH_EraseInitTypeDef erase_init;
     uint32_t sector_error;
     erase_init.TypeErase = FLASH_TYPEERASE_SECTORS; //設定為按sector擦除
-    erase_init.Sector = FLASH_SECTOR_2; //從sector開始擦
-    erase_init.NbSectors = 4; //擦幾個sector
+    erase_init.Sector = FLASH_SECTOR_3; //從sector開始擦
+    erase_init.NbSectors = 3; //擦幾個sector
     erase_init.VoltageRange = FLASH_VOLTAGE_RANGE_3; //3.3v供電
 
     HAL_FLASHEx_Erase(&erase_init,  &sector_error);
@@ -87,7 +93,7 @@ void Flash_Writeapp(uint32_t address,uint8_t* data,uint32_t length){
 
     for (uint32_t i = 0; i < word_count; i++) {
         //寫入 1.每次寫32bit(4bytes) 2.地址 3.資料
-        HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, SECTOR2_ADDRESS + i*4, p[i]);
+        HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, APP_ADDRESS + i*4, p[i]);
     }
 
     HAL_FLASH_Lock();
@@ -178,7 +184,7 @@ void Get_Backup(){
         memcpy(this_chunk, (uint8_t*)SECTOR6_ADDRESS+i, CHUNK_SIZE);
         uint32_t *p = (uint32_t*)this_chunk;
         for (uint8_t k = 0;k<CHUNK_SIZE/4; k++) {
-            HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, SECTOR2_ADDRESS + i + k*4, p[k]);
+            HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, APP_ADDRESS + i + k*4, p[k]);
         }
     }
     HAL_FLASH_Lock();
@@ -208,7 +214,7 @@ uint8_t Get_Update_Program_Chunk(uint32_t *out_size){
     HAL_FLASH_Unlock();
 
     uint32_t received = 0;
-    uint32_t write_address = SECTOR2_ADDRESS;
+    uint32_t write_address = APP_ADDRESS;
     uint8_t cmd_chunk[9]={0};
     while (received<header.firmware_size) {
         uint32_t this_chunk = ((header.firmware_size-received) < CHUNK_SIZE)? (header.firmware_size-received):CHUNK_SIZE;

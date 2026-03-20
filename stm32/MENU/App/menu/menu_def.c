@@ -23,7 +23,7 @@ MenuItem menu_mpu6050 = { "MPU6050", NULL, mpu6050_children, ARRAY_SIZE(mpu6050_
 MenuItem* update_children[]={&item_check_update,&item_no_check_update};
 MenuItem menu_update = { "Are you sure you want to update?", NULL, update_children, ARRAY_SIZE(update_children), 0, NULL, NULL };
 // --- 根節點 ---
-MenuItem* root_children[] ={&item_colck,&item_temperature,&menu_mpu6050,&item_servo,&item_setting,&item_gif} ;
+MenuItem* root_children[] ={&item_colck,&item_temperature,&menu_mpu6050,&item_servo,&item_setting,&item_gif,&menu_update} ;
 MenuItem menu_root = { "Main", NULL, root_children, ARRAY_SIZE(root_children), 0, NULL,NULL};
 
 // 初始化現在位置
