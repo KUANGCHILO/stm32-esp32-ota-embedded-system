@@ -24,7 +24,6 @@
 
 /* USER CODE END 0 */
 
-
 void HAL_I2C_MspInit(I2C_HandleTypeDef* i2cHandle)
 {
 

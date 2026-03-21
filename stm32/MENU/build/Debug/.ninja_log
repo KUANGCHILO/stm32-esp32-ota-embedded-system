@@ -13,7 +13,7 @@
 82	633	7956033009392453	CMakeFiles/MENU.dir/Core/Src/stm32f4xx_hal_msp.c.obj	e6d95cc9427027df
 76	674	7956033009336654	CMakeFiles/MENU.dir/Core/Src/stm32f4xx_it.c.obj	2b03570e6d6f57c0
 615	889	7956033014716744	CMakeFiles/MENU.dir/Middlewares/u8g2/u8g2_arc.c.obj	1c5879649b55f9d6
-15	218	7956329034653353	CMakeFiles/MENU.dir/App/menu/menu_def.c.obj	b01ab7e1d2fe76b6
+30	239	7957168278643575	CMakeFiles/MENU.dir/App/menu/menu_def.c.obj	b01ab7e1d2fe76b6
 39	787	7956033008960847	CMakeFiles/MENU.dir/Core/Src/freertos.c.obj	5e9097fe609de4fb
 291	715	7956033011479923	CMakeFiles/MENU.dir/Drivers/BSP/oled.c.obj	d832229a859a2851
 140	708	7956033009972335	CMakeFiles/MENU.dir/App/menu/menu_engine.c.obj	820b4a153b16023e
@@ -58,7 +58,7 @@
 1393	1673	7956033022497405	CMakeFiles/MENU.dir/Middlewares/u8g2/u8x8_setup.c.obj	30dad568781b5c96
 1402	1741	7956033022587615	CMakeFiles/MENU.dir/Middlewares/u8g2/u8x8_string.c.obj	7ac011f2ca51a63a
 1431	1800	7956033022878917	CMakeFiles/MENU.dir/Middlewares/u8g2/u8x8_u8toa.c.obj	43bcd1f37209bf10
-1438	2173	7956033022949033	cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Core/Src/system_stm32f4xx.c.obj	9f7ab83dfcee4518
+20	1412	7957297918931933	cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Core/Src/system_stm32f4xx.c.obj	9f7ab83dfcee4518
 1444	2050	7956033023014273	cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c.obj	d32e7ff9d17fddad
 1452	2329	7956033023094532	cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c.obj	a50aa2d417814f41
 1459	2204	7956033023154530	cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c.obj	bd756b4c5c26cd19
@@ -88,8 +88,8 @@
 2243	2610	7956033031005046	cmake/stm32cubemx/CMakeFiles/FreeRTOS.dir/__/__/Middlewares/Third_Party/FreeRTOS/Source/tasks.c.obj	37c1ca7d7a443e7
 2257	2735	7956033031135263	cmake/stm32cubemx/CMakeFiles/FreeRTOS.dir/__/__/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c.obj	c4d36a98fa3b91ff
 715	3366	7956033015725305	CMakeFiles/MENU.dir/Middlewares/u8g2/u8g2_fonts.c.obj	fe6518c6b44c9b08
-219	483	7956329036682182	MENU.elf	81a0ff765cd4c0d
-2	230	7957168241361766	build.ninja	d22eee1eeaf06bb9
+1412	2395	7957297932846391	MENU.elf	81a0ff765cd4c0d
+2	230	7958057706817456	build.ninja	d22eee1eeaf06bb9
 2	230	7954472807195697	C:/Users/wp901/stm32_project/MENU/build/Debug/cmake_install.cmake	d22eee1eeaf06bb9
 2	230	7954472807316179	C:/Users/wp901/stm32_project/MENU/build/Debug/cmake/stm32cubemx/cmake_install.cmake	d22eee1eeaf06bb9
 15	36	7950162971295827	CMakeFiles/clean.additional	26e88221870d353e
@@ -101,7 +101,3 @@
 5	1036	7956327702058179	CMakeFiles/MENU.dir/Drivers/BSP/mpu6050.c.obj	831f61c171e5865a
 15	200	7956037220609791	CMakeFiles/MENU.dir/Drivers/BSP/rotate.c.obj	661675d2e0900a57
 128	283	7956033009842066	CMakeFiles/MENU.dir/App/assets/images.c.obj	2546aade656232a2
-30	239	7957168278643575	CMakeFiles/MENU.dir/App/menu/menu_def.c.obj	b01ab7e1d2fe76b6
-239	989	7957168280734106	MENU.elf	81a0ff765cd4c0d
-4	153	7957175318504440	cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Core/Src/system_stm32f4xx.c.obj	9f7ab83dfcee4518
-154	421	7957175320006962	MENU.elf	81a0ff765cd4c0d

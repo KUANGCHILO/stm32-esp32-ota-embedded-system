@@ -28,6 +28,16 @@ void jump_app(void){
     }
         log_print("Jump to app");
         log_display(&u8g2);
+        // 強制 reset I2C1 硬體
+        __HAL_RCC_I2C1_FORCE_RESET();
+        HAL_Delay(10);
+        __HAL_RCC_I2C1_RELEASE_RESET();
+
+        // 同樣處理 SPI1（bootloader 有用到）
+        __HAL_RCC_SPI1_FORCE_RESET();
+        HAL_Delay(10);
+        __HAL_RCC_SPI1_RELEASE_RESET();
+        
         //關閉cpu回應中斷
         __disable_irq();
         //關閉systick
@@ -39,20 +49,19 @@ void jump_app(void){
             NVIC->ICER[i] = 0xFFFFFFFF;  // 把所有中斷的啟用狀態清掉
             NVIC->ICPR[i] = 0xFFFFFFFF;  // 把所有 pending 旗標清掉
         }
+
         //設置中斷向量表
         SCB->VTOR=APP_ADDRESS;
         //獲取app的reset_handler
         pFunction app_reset_handler = (pFunction)(*(uint32_t*)(APP_ADDRESS+4));
-        //設置msp
-        __set_MSP(*(uint32_t*)APP_ADDRESS);
         //清除check_number
         *(uint8_t*)(CHECK_SRAM_ADDRESS) = 0x00;
         //啟用中斷
         __DSB();
         __ISB();
         __enable_irq();
-        HAL_DeInit();
-        HAL_RCC_DeInit();
+
+        __set_MSP(*(uint32_t*)APP_ADDRESS);
         //跳轉到app
         app_reset_handler();
 }
