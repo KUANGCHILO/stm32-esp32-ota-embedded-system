@@ -2,6 +2,21 @@
 #include "transmit.h"
 #include <Arduino.h>
 
+static void debugLog(const char* runId, const char* hypothesisId, const char* location, const char* message, const String& dataJson) {
+    String line = String("{\"sessionId\":\"f656c2\",\"runId\":\"") + runId +
+                  "\",\"hypothesisId\":\"" + hypothesisId +
+                  "\",\"location\":\"" + location +
+                  "\",\"message\":\"" + message +
+                  "\",\"data\":" + dataJson +
+                  ",\"timestamp\":" + String((unsigned long)millis()) + "}";
+    Serial.println(line);
+    File lf = LittleFS.open("debug-f656c2.log", "a");
+    if (lf) {
+        lf.println(line);
+        lf.close();
+    }
+}
+
 uint32_t crc = 0xFFFFFFFF;
 
 const char* versionUrl = "https://raw.githubusercontent.com/KUANGCHILO/stm32-esp32-ota-embedded-system/refs/heads/main/stm32/MENU/version.txt";
@@ -25,7 +40,12 @@ String getRemoteVersion() {
     http.begin(client, versionUrl);
 
     String remoteVer = "unknown";
-    if (http.GET() == 200) {
+    int code = http.GET();
+    // #region agent log
+    debugLog("before-fix", "H3", "transmit.cpp:getRemoteVersion", "version_http_response",
+        String("{\"http_code\":") + code + "}");
+    // #endregion
+    if (code == 200) {
         remoteVer = http.getString();
         remoteVer.trim();  // 去掉換行空白
     }
@@ -37,13 +57,13 @@ uint8_t Check_Version()
 {
     String remote = getRemoteVersion();
     if (remote== "unknown") {
-        return UPDATE_Connect_Fail;
+        return request_connect_Fail;
     }
     if (remote != readVersion()) {
         Serial.println("有新版本！");
-        return UPDATE_REQUESTED;
+        return request_update_success;
     } else {
-        return UPDATE_NOT_NEEDED;
+        return request_updata_not_needed;
     }
 }
 void CRC32_Software(uint8_t *data,uint32_t length){
@@ -68,9 +88,17 @@ FirmwareHeader_t Download_Update(){
     //http.setInsecure();  // 跳過 SSL 驗證
     
     int httpCode = http.GET();
+    // #region agent log
+    debugLog("before-fix", "H3", "transmit.cpp:Download_Update", "firmware_http_response",
+        String("{\"http_code\":") + httpCode + ",\"content_length\":" + http.getSize() + "}");
+    // #endregion
     if (httpCode == 200) {
         // 開檔案準備寫入
         File file = LittleFS.open(update_file_path, "w");
+        // #region agent log
+        debugLog("before-fix", "H2", "transmit.cpp:Download_Update", "open_update_file_for_write",
+            String("{\"file_open_ok\":") + (file ? "1" : "0") + "}");
+        // #endregion
         
         // 串流寫入，不會一次塞爆 RAM
         WiFiClient* stream = http.getStreamPtr();
@@ -87,8 +115,8 @@ FirmwareHeader_t Download_Update(){
             }
         }
 
-        result.firmware_size=(uint32_t)file.size();
-        result.crc=crc;
+        result.firmware_size=(uint32_t)total;
+        result.crc=crc ^ 0xFFFFFFFF;
 
         file.close();
         Serial.println("下載完成！");
@@ -112,6 +140,16 @@ uint32_t CRC32_Software_Chunk(uint8_t *data, uint32_t length)
 
 void Transmit_Update(uint32_t this_chunk,uint32_t received,uint8_t *data){
     File file = LittleFS.open(update_file_path, "r");
+    // #region agent log
+    debugLog("before-fix", "H1", "transmit.cpp:Transmit_Update", "transmit_entry",
+        String("{\"this_chunk\":") + this_chunk + ",\"received\":" + received +
+        ",\"file_open_ok\":" + (file ? "1" : "0") + "}");
+    // #endregion
+    // #region agent log
+    debugLog("before-fix", "H1", "transmit.cpp:Transmit_Update", "chunk_bounds_check",
+        String("{\"chunk_lt_4\":") + ((this_chunk < 4) ? "1" : "0") +
+        ",\"chunk_gt_528\":" + ((this_chunk > 528) ? "1" : "0") + "}");
+    // #endregion
     file.seek(received);
     file.read(data,this_chunk-4);
     uint32_t crc = CRC32_Software_Chunk(data,this_chunk-4);

@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <sys/_intsup.h>
 
-uint8_t firmware_buffer[CHUNK_SIZE+CRC32_BYTES];
+uint8_t firmware_buffer[data_size];
 FirmwareHeader_t header;
 uint32_t crc;
 
@@ -29,14 +29,8 @@ void jump_app(void){
         log_print("Jump to app");
         log_display(&u8g2);
         // 強制 reset I2C1 硬體
-        __HAL_RCC_I2C1_FORCE_RESET();
-        HAL_Delay(10);
-        __HAL_RCC_I2C1_RELEASE_RESET();
-
-        // 同樣處理 SPI1（bootloader 有用到）
-        __HAL_RCC_SPI1_FORCE_RESET();
-        HAL_Delay(10);
-        __HAL_RCC_SPI1_RELEASE_RESET();
+        HAL_DeInit();
+        HAL_RCC_DeInit();
         
         //關閉cpu回應中斷
         __disable_irq();
@@ -57,11 +51,13 @@ void jump_app(void){
         //清除check_number
         *(uint8_t*)(CHECK_SRAM_ADDRESS) = 0x00;
         //啟用中斷
+        
+        //
+
+        __set_MSP(*(uint32_t*)APP_ADDRESS);
         __DSB();
         __ISB();
         __enable_irq();
-
-        __set_MSP(*(uint32_t*)APP_ADDRESS);
         //跳轉到app
         app_reset_handler();
 }
@@ -117,12 +113,13 @@ uint8_t Flash_Verify(uint32_t address,uint8_t* data,uint32_t length){
 }
 
 uint8_t Updata_Check(){
-    if(*(uint8_t*)(CHECK_SRAM_ADDRESS)!=check_number){return UPDATE_NOT_NEEDED;}
-    uint8_t cmd = cmd_check;
-    uint8_t message[3];
+    //if(*(uint8_t*)(CHECK_SRAM_ADDRESS)!=check_number){return UPDATE_NOT_NEEDED;}
+    uint8_t cmd[cmd_size]= {0};
+    cmd[0] = cmd_check;
+    uint8_t message[check_version_size];
     HAL_StatusTypeDef status;
     CS_LOW();
-    status = HAL_SPI_Transmit(&hspi1, &cmd, 1, 500);
+    status = HAL_SPI_Transmit(&hspi1, cmd, cmd_size, 500);
     CS_HIGH();
     if (status == HAL_TIMEOUT ) {
         return UPDATE_Connect_Fail;   
@@ -130,8 +127,9 @@ uint8_t Updata_Check(){
     if (status != HAL_OK) {
         return UPDATE_NOT_NEEDED;   
     }
+    HAL_Delay(2000);
     CS_LOW();
-    status = HAL_SPI_Receive(&hspi1, message, 3, HAL_MAX_DELAY);
+    status = HAL_SPI_Receive(&hspi1, message, check_version_size, HAL_MAX_DELAY);
     CS_HIGH();
     if (status == HAL_TIMEOUT ) {
         return UPDATE_Connect_Fail;   
@@ -145,9 +143,12 @@ uint8_t Updata_Check(){
     return UPDATE_NOT_NEEDED;
 }
 
+//不用的
 uint8_t* Get_Update_Program(uint32_t *out_size){
-    uint8_t cmd = cmd_check;
-    HAL_SPI_Transmit(&hspi1, &cmd, 1,500);
+    uint8_t cmd[cmd_size]= {0};;
+    cmd[0] = cmd_check;
+
+    HAL_SPI_Transmit(&hspi1, cmd, cmd_size,500);
 
     //先取得檔案大小
     
@@ -165,35 +166,32 @@ uint8_t* Get_Update_Program(uint32_t *out_size){
 ////
 //// 擦除並取得備份區 sector 6~7
 void Get_Backup(){
-    //自己寫的
-    // int k =0;
-    // for (uint32_t i =SECTOR6_ADDRESS; i<(SECTOR6_ADDRESS+MAX_FIRMWARE_SIZE*8); i+=8) {
-    //     if !(*(uint8_t*)i == 0xff) {
-    //         break;
-    //     }
-    //     firmware_buffer[k] = *(uint8_t*)i;
-    //     k++;
-    // }
-    //正確寫法
-    // for (uint32_t i = 0; i < MAX_FIRMWARE_SIZE; i++) {
-    //     firmware_buffer[i] = *(uint8_t*)(SECTOR6_ADDRESS + i);
-    // }
-    //簡潔寫法
     Flash_Erase();
     log_print("restore from backup");        
     log_display(&u8g2);
     HAL_FLASH_Unlock();
-    uint8_t this_chunk[CHUNK_SIZE];
-    for (uint32_t i = 0; i < 256*1024;i+=CHUNK_SIZE) {
+    int once_write_size=4096;
+    uint8_t this_chunk[once_write_size];
+    for (uint32_t i = 0; i < 256*1024;i+=once_write_size) {
         char log_message[40];
         float progress = (float)i / (256.0f * 1024.0f) * 100.0f;
         sprintf(log_message,"Restore progress(%.f%%/100%%)",progress);
         log_print(log_message);        
         log_display(&u8g2);
-        memcpy(this_chunk, (uint8_t*)SECTOR6_ADDRESS+i, CHUNK_SIZE);
+        memcpy(this_chunk, (uint8_t*)SECTOR6_ADDRESS+i, once_write_size);
         uint32_t *p = (uint32_t*)this_chunk;
-        for (uint8_t k = 0;k<CHUNK_SIZE/4; k++) {
-            HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, APP_ADDRESS + i + k*4, p[k]);
+        for (uint32_t k = 0;k<once_write_size/4; k++) {
+            HAL_StatusTypeDef ret = HAL_FLASH_Program(
+            FLASH_TYPEPROGRAM_WORD, APP_ADDRESS + i + k*4, p[k]);
+    
+            if (ret != HAL_OK) {
+                char err[40];
+                sprintf(err, "ERR i=%lu k=%u SR=%08lX", i, k, FLASH->SR);
+                log_print(err);
+                log_display(&u8g2);
+                HAL_FLASH_Lock();
+                return;  // 立刻停下來看 log
+            }
         }
     }
     HAL_FLASH_Lock();
@@ -202,16 +200,18 @@ void Get_Backup(){
 }
 
 uint8_t Get_Update_Program_Chunk(uint32_t *out_size){
-    uint8_t cmd = cmd_request_update;
+    uint8_t cmd[cmd_size]= {0};;
+    cmd[0] = cmd_request_update;
     crc = 0xFFFFFFFF;
 
     // CS_LOW();
     // HAL_SPI_TransmitReceive(&hspi1,&cmd,(uint8_t*)&header,sizeof(FirmwareHeader_t),HAL_MAX_DELAY);
     // CS_HIGH();
     CS_LOW();
-    HAL_SPI_Transmit(&hspi1, &cmd, 1,500);
+    HAL_SPI_Transmit(&hspi1, cmd, cmd_size,500);
     CS_HIGH();
     //先取得檔案大小
+    HAL_Delay(10000);//下載時間
     CS_LOW();
     HAL_SPI_Receive(&hspi1, (uint8_t*)&header, sizeof(FirmwareHeader_t), HAL_MAX_DELAY);
     CS_HIGH();
@@ -224,7 +224,7 @@ uint8_t Get_Update_Program_Chunk(uint32_t *out_size){
 
     uint32_t received = 0;
     uint32_t write_address = APP_ADDRESS;
-    uint8_t cmd_chunk[9]={0};
+    uint8_t cmd_chunk[cmd_size]={0};
     while (received<header.firmware_size) {
         uint32_t this_chunk = ((header.firmware_size-received) < CHUNK_SIZE)? (header.firmware_size-received):CHUNK_SIZE;
         this_chunk+=CRC32_BYTES;
@@ -239,22 +239,20 @@ uint8_t Get_Update_Program_Chunk(uint32_t *out_size){
         cmd_chunk[7] = received >> 8;
         cmd_chunk[8] = received >> 0;
         CS_LOW();
-        HAL_SPI_Transmit(&hspi1, cmd_chunk, 9,500);
+        HAL_SPI_Transmit(&hspi1, cmd_chunk, cmd_size,500);
+        CS_HIGH();
+        HAL_Delay(1000);
+        CS_LOW();
+        HAL_SPI_Receive(&hspi1, firmware_buffer, data_size, HAL_MAX_DELAY);
         CS_HIGH();
 
-        CS_LOW();
-        HAL_SPI_Receive(&hspi1, firmware_buffer, this_chunk, HAL_MAX_DELAY);
-        CS_HIGH();
-        // CS_LOW();
-        // HAL_SPI_TransmitReceive(&hspi1,cmd_chunk,firmware_buffer,this_chunk,HAL_MAX_DELAY);
-        // CS_HIGH();
         uint32_t crc_chunk = CRC32_Software_Chunk(firmware_buffer,this_chunk-CRC32_BYTES);
-        uint32_t crc_received = (firmware_buffer[this_chunk-1] << 24) | (firmware_buffer[this_chunk-2] << 16) | (firmware_buffer[this_chunk-3] << 8) | (firmware_buffer[this_chunk-4] << 0);
+        uint32_t crc_received = (firmware_buffer[this_chunk-4] << 24) | (firmware_buffer[this_chunk-3] << 16) | (firmware_buffer[this_chunk-2] << 8) | (firmware_buffer[this_chunk-1] << 0);
         if (crc_chunk != crc_received) {
             continue;
         }
 
-        char log_message[40];
+        char log_message[50];
         float progress = (float)received/(float)header.firmware_size*100;
         sprintf(log_message,"Updata progress(%.f%%/100%%)",progress);
         log_print(log_message);    
@@ -263,16 +261,21 @@ uint8_t Get_Update_Program_Chunk(uint32_t *out_size){
         CRC32_Software(firmware_buffer,this_chunk-CRC32_BYTES);
 
         uint32_t *p = (uint32_t*) firmware_buffer;
-        uint32_t word_count = (this_chunk-CRC32_BYTES+3) / 4 ; //無條件進位
+        uint32_t word_count = (this_chunk-CRC32_BYTES) / 4 ; //無條件進位
         
         for (uint32_t i = 0; i < word_count; i++) {
             //寫入 1.每次寫32bit(4bytes) 2.地址 3.資料
             HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, write_address, p[i]);
             write_address+=4;
         }
-        received+=this_chunk-CRC32_BYTES;
-    }
+        uint32_t flash_msp   = *(uint32_t*)APP_ADDRESS;
+        uint32_t flash_reset = *(uint32_t*)(APP_ADDRESS + 4);
 
+        received+=this_chunk-CRC32_BYTES;
+        memset(firmware_buffer, 0, sizeof(firmware_buffer));//無法跳轉原因
+    }
+    uint32_t flash_msp0   = *(uint32_t*)APP_ADDRESS;
+    uint32_t flash_reset0 = *(uint32_t*)(APP_ADDRESS + 4);
     *out_size = header.firmware_size;
     crc = crc ^ 0xFFFFFFFF;
     HAL_FLASH_Lock();

@@ -14,6 +14,10 @@
 #define UPDATE_REQUESTED   1
 #define UPDATE_Connect_Fail   2
 
+#define request_update_success (0x01)
+#define request_connect_Fail (0x02)
+#define request_updata_not_needed (0x00)
+
 // #define WiFi_ssid "OPPO A72"
 // #define WiFi_password "99999999"
 

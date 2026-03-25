@@ -10,6 +10,9 @@
 #define CHECK_SRAM_ADDRESS (0x20017FF8U) //sram範圍 0x20000000 ~ 0x20017FFF 取最後8 bytes
 #define check_number (0x06)
 
+#define RAM_START         0x20000000U
+#define RAM_END_RESERVED  0x20017FF8U
+
 typedef void (*pFunction)(void);
 
 MenuContext GetMenuContext();

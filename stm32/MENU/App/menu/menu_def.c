@@ -1,4 +1,5 @@
 #include "menu_def.h"
+#include "cmsis_os2.h"
 #include "i2c.h"
 #include "stm32f4xx_hal_rtc.h"
 
@@ -21,7 +22,7 @@ MenuItem* mpu6050_children[]={&item_mpu6050_Duplexer,&item_mpu6050_Kalman};
 MenuItem menu_mpu6050 = { "MPU6050", NULL, mpu6050_children, ARRAY_SIZE(mpu6050_children), 0, NULL, NULL };
 
 MenuItem* update_children[]={&item_check_update,&item_no_check_update};
-MenuItem menu_update = { "Are you sure you want to update?", NULL, update_children, ARRAY_SIZE(update_children), 0, NULL, NULL };
+MenuItem menu_update = { "Update", NULL, update_children, ARRAY_SIZE(update_children), 0, NULL, NULL };
 // --- 根節點 ---
 MenuItem* root_children[] ={&item_colck,&item_temperature,&menu_mpu6050,&item_servo,&item_setting,&item_gif,&menu_update} ;
 MenuItem menu_root = { "Main", NULL, root_children, ARRAY_SIZE(root_children), 0, NULL,NULL};
@@ -120,9 +121,9 @@ void change_colck(int8_t dir){
 void action_menu(){
     ctx.edit_mode=0;
     ctx.need_redraw=1;
-    ctx.bottom_edge=3;
+    //ctx.bottom_edge=3;
     ctx.handle_event=menu_handle_event;
-    ctx.top_edge=0;
+    //ctx.top_edge=0;
     ctx.active_screen=NULL;
     ctx.current=&menu_root;
 }
@@ -218,7 +219,7 @@ void action_gif(void) {
     ctx.active_screen = screen_gif_capoo;
     ctx.handle_event  = engine_handle_event;
     ctx.current=&item_gif;
-    //ctx.current->selected_index=0;
+    ctx.current->selected_index=0;
 }
 
 ////
@@ -226,27 +227,45 @@ void action_gif(void) {
 ////
 void action_update(void){
     uint32_t sp = *(uint32_t*)BOOTLOADER_ADDRESS;
-    if (sp >0x20000000U && sp <0x2000FFFFU){
-        //關閉cpu回應中斷
-        __disable_irq();
-        //關閉systick
-        SysTick->CTRL=0;
-        SysTick->LOAD=0;
-        SysTick->VAL=0;
-        //清除中斷
-        for (uint32_t i = 0; i < 8; i++) {
-            NVIC->ICER[i] = 0xFFFFFFFF;  // 把所有中斷的啟用狀態清掉
-            NVIC->ICPR[i] = 0xFFFFFFFF;  // 把所有 pending 旗標清掉
-        }
-        //設置中斷向量表
-        SCB->VTOR=BOOTLOADER_ADDRESS;
-        //獲取app的reset_handler
-        pFunction bootloader_reset_handler = (pFunction)(*(uint32_t*)(BOOTLOADER_ADDRESS+4));
-        //設置msp
-        __set_MSP(*(uint32_t*)BOOTLOADER_ADDRESS);
-        //清除check_number
+    if (sp >RAM_START && sp <=RAM_END_RESERVED){
+        // __HAL_RCC_I2C1_FORCE_RESET();
+        // __HAL_RCC_I2C1_RELEASE_RESET();
+
+        // // 同樣處理 SPI1（bootloader 有用到）
+        // __HAL_RCC_SPI1_FORCE_RESET();
+        // __HAL_RCC_SPI1_RELEASE_RESET();
+        // // UART2
+        // __HAL_RCC_USART2_FORCE_RESET();
+        // __HAL_RCC_USART2_RELEASE_RESET();
+
+        // // TIM2
+        // __HAL_RCC_TIM2_FORCE_RESET();
+        // __HAL_RCC_TIM2_RELEASE_RESET();
+        // //關閉cpu回應中斷
+        // __disable_irq();
+        // //關閉systick
+        // SysTick->CTRL=0;
+        // SysTick->LOAD=0;
+        // SysTick->VAL=0;
+        // //清除中斷
+        // for (uint32_t i = 0; i < 8; i++) {
+        //     NVIC->ICER[i] = 0xFFFFFFFF;  // 把所有中斷的啟用狀態清掉
+        //     NVIC->ICPR[i] = 0xFFFFFFFF;  // 把所有 pending 旗標清掉
+        // }
+        // //設置中斷向量表
+        // SCB->VTOR=BOOTLOADER_ADDRESS;
+        // register pFunction bootloader_reset_handler = (pFunction)(*(uint32_t*)(BOOTLOADER_ADDRESS+4));
+        // register uint32_t _sp = *(uint32_t*)BOOTLOADER_ADDRESS;
+        // //設置check_number
         *(uint8_t*)(CHECK_SRAM_ADDRESS) = check_number;
-        //跳轉到bootloader
-        bootloader_reset_handler();
+        // //獲取app的reset_handler
+        // __DSB();
+        // __ISB();
+        // //設置msp
+        // __set_MSP(_sp);
+
+        // //跳轉到bootloader
+        // bootloader_reset_handler();
+        NVIC_SystemReset();
     }
 }

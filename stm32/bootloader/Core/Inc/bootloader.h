@@ -30,12 +30,18 @@
 #define cmd_get_update (0x03)
 #define ARK (0x69)
 
-#define request_update_success (0x00)
+#define request_update_success (0x01)
+#define request_connect_Fail (0x02)
+#define request_updata_not_needed (0x00)
 #define check_number (0x06)
 
 #define MAX_FIRMWARE_SIZE  (256 * 1024) //收到bin最大256kb
-#define CHUNK_SIZE  (512) //一次只收512bytes
+#define CHUNK_SIZE  (4080-4) //一次只收2048bytes
 #define CRC32_BYTES (4)
+
+#define cmd_size 12
+#define check_version_size 4
+#define data_size (CHUNK_SIZE+CRC32_BYTES)
 
 #define CS_LOW()  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET)
 #define CS_HIGH() HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET)
@@ -59,7 +65,7 @@ typedef struct {
     uint32_t crc;             // 整包的 CRC，用來最後驗證
 } FirmwareHeader_t;
 
-extern uint8_t firmware_buffer[CHUNK_SIZE+CRC32_BYTES];
+extern uint8_t firmware_buffer[data_size];
 extern FirmwareHeader_t header;
 extern uint32_t crc;
 extern u8g2_t u8g2;

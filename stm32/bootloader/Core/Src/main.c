@@ -101,11 +101,12 @@ int main(void)
   crc = 0xFFFFFFFF;
   uint32_t out_size=0;
   uint8_t message=0;
-  uint8_t update_message=Updata_Check();
+  //uint8_t update_message=Updata_Check();
+  uint8_t update_message=1;
   if (update_message== UPDATE_REQUESTED) {
     log_print("Update needed");
     log_display(&u8g2);
-    message=Get_Update_Program_Chunk(&out_size);
+    //message=Get_Update_Program_Chunk(&out_size);
     if(message==0||crc != header.crc){
       log_print("CRC ERROR");        
       log_display(&u8g2);
@@ -118,6 +119,8 @@ int main(void)
     log_print("Connection failed");
     log_display(&u8g2);
   }
+  uint32_t msp   = *(uint32_t*)APP_ADDRESS;
+  uint32_t reset = *(uint32_t*)(APP_ADDRESS + 4);
   jump_app();
   /* USER CODE END 2 */
 
