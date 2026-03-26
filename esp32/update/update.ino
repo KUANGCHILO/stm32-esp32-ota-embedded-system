@@ -109,9 +109,6 @@ void loop() {
 
     if (!received_data) {
         Serial.println("等待指令逾時...");
-        // #region agent log
-        debugLog("before-fix", "H4", "update.ino:loop", "transfer_timeout", "{\"timeout_ms\":60000}");
-        // #endregion
         return;  // 重新等待
     }
 
@@ -119,9 +116,6 @@ void loop() {
 
     switch (rx_buf[0]) {
     case cmd_check_version:
-        // #region agent log
-        debugLog("before-fix", "H3", "update.ino:cmd_check_version", "enter_check_version", "{\"cmd\":1}");
-        // #endregion
         tx_buf_Check_Version[0] = Check_Version();
         printHex("傳出 Check_Version", tx_buf_Check_Version, check_version_size);
         slave.transfer(tx_buf_Check_Version, rx_buf_Check_Version, check_version_size,60000);
@@ -129,10 +123,7 @@ void loop() {
         break;
 
     case cmd_download_update:
-        Serial.println("[Download] 開始下載...");
-        // #region agent log
-        debugLog("before-fix", "H3", "update.ino:cmd_download_update", "enter_download", "{\"cmd\":2}");
-        // #endregion
+        Serial.println("[Download] 開始下載...");        
         message = Download_Update();
         memcpy(tx_buf_Header, &message, sizeof(FirmwareHeader_t));
         printHex("傳出 Header", tx_buf_Header, sizeof(tx_buf_Header));
@@ -147,10 +138,6 @@ void loop() {
                    | ((uint32_t)rx_buf[3] << 8)  |  (uint32_t)rx_buf[4];
         received   = ((uint32_t)rx_buf[5] << 24) | ((uint32_t)rx_buf[6] << 16)
                    | ((uint32_t)rx_buf[7] << 8)  |  (uint32_t)rx_buf[8];
-        // #region agent log
-        debugLog("before-fix", "H1", "update.ino:cmd_transmit_update", "parsed_chunk_and_offset",
-          String("{\"this_chunk\":") + this_chunk + ",\"received\":" + received + ",\"max_data_size\":" + data_size + "}");
-        // #endregion
         Serial.printf("[Transmit] this_chunk=%u, received=%u\n", this_chunk, received);
         memset(tx_buf_update, 0, data_size);
         Transmit_Update(this_chunk, received, tx_buf_update);

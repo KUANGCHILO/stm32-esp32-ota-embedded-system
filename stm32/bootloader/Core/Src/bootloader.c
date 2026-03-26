@@ -50,13 +50,11 @@ void jump_app(void){
         pFunction app_reset_handler = (pFunction)(*(uint32_t*)(APP_ADDRESS+4));
         //清除check_number
         *(uint8_t*)(CHECK_SRAM_ADDRESS) = 0x00;
-        //啟用中斷
         
-        //
-
         __set_MSP(*(uint32_t*)APP_ADDRESS);
         __DSB();
         __ISB();
+        //啟用中斷
         __enable_irq();
         //跳轉到app
         app_reset_handler();
@@ -183,15 +181,6 @@ void Get_Backup(){
         for (uint32_t k = 0;k<once_write_size/4; k++) {
             HAL_StatusTypeDef ret = HAL_FLASH_Program(
             FLASH_TYPEPROGRAM_WORD, APP_ADDRESS + i + k*4, p[k]);
-    
-            if (ret != HAL_OK) {
-                char err[40];
-                sprintf(err, "ERR i=%lu k=%u SR=%08lX", i, k, FLASH->SR);
-                log_print(err);
-                log_display(&u8g2);
-                HAL_FLASH_Lock();
-                return;  // 立刻停下來看 log
-            }
         }
     }
     HAL_FLASH_Lock();
@@ -268,14 +257,10 @@ uint8_t Get_Update_Program_Chunk(uint32_t *out_size){
             HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, write_address, p[i]);
             write_address+=4;
         }
-        uint32_t flash_msp   = *(uint32_t*)APP_ADDRESS;
-        uint32_t flash_reset = *(uint32_t*)(APP_ADDRESS + 4);
 
         received+=this_chunk-CRC32_BYTES;
         memset(firmware_buffer, 0, sizeof(firmware_buffer));//無法跳轉原因
     }
-    uint32_t flash_msp0   = *(uint32_t*)APP_ADDRESS;
-    uint32_t flash_reset0 = *(uint32_t*)(APP_ADDRESS + 4);
     *out_size = header.firmware_size;
     crc = crc ^ 0xFFFFFFFF;
     HAL_FLASH_Lock();
