@@ -81,13 +81,7 @@ void setup() {
   rx_buf_Check_Version = slave.allocDMABuffer(check_version_size);
   rx_buf_Header=slave.allocDMABuffer(sizeof(FirmwareHeader_t));
   rx_buf_update=slave.allocDMABuffer(data_size);
-  // #region agent log
-  debugLog("before-fix", "H5", "update.ino:setup", "dma_alloc", String("{\"tx\":") + (tx_buf ? "1" : "0") +
-    ",\"rx\":" + (rx_buf ? "1" : "0") +
-    ",\"check\":" + (tx_buf_Check_Version ? "1" : "0") +
-    ",\"header\":" + (tx_buf_Header ? "1" : "0") +
-    ",\"update\":" + (tx_buf_update ? "1" : "0") + "}");
-  // #endregion
+  
   slave.begin(VSPI, VSPI_SCK, VSPI_MISO, VSPI_MOSI, VSPI_CS);
 
 }

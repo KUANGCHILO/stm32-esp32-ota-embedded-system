@@ -111,7 +111,7 @@ uint8_t Flash_Verify(uint32_t address,uint8_t* data,uint32_t length){
 }
 
 uint8_t Updata_Check(){
-    //if(*(uint8_t*)(CHECK_SRAM_ADDRESS)!=check_number){return UPDATE_NOT_NEEDED;}
+    if(*(uint8_t*)(CHECK_SRAM_ADDRESS)!=check_number){return UPDATE_NOT_NEEDED;}
     uint8_t cmd[cmd_size]= {0};
     cmd[0] = cmd_check;
     uint8_t message[check_version_size];
@@ -193,9 +193,6 @@ uint8_t Get_Update_Program_Chunk(uint32_t *out_size){
     cmd[0] = cmd_request_update;
     crc = 0xFFFFFFFF;
 
-    // CS_LOW();
-    // HAL_SPI_TransmitReceive(&hspi1,&cmd,(uint8_t*)&header,sizeof(FirmwareHeader_t),HAL_MAX_DELAY);
-    // CS_HIGH();
     CS_LOW();
     HAL_SPI_Transmit(&hspi1, cmd, cmd_size,500);
     CS_HIGH();
