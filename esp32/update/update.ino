@@ -33,21 +33,6 @@ ESP32DMASPI::Slave slave;
 
 #define header_size sizeof(FirmwareHeader_t)
 
-static void debugLog(const char* runId, const char* hypothesisId, const char* location, const char* message, const String& dataJson) {
-  String line = String("{\"sessionId\":\"f656c2\",\"runId\":\"") + runId +
-                "\",\"hypothesisId\":\"" + hypothesisId +
-                "\",\"location\":\"" + location +
-                "\",\"message\":\"" + message +
-                "\",\"data\":" + dataJson +
-                ",\"timestamp\":" + String((unsigned long)millis()) + "}";
-  Serial.println(line);
-  File lf = LittleFS.open("debug-f656c2.log", "a");
-  if (lf) {
-    lf.println(line);
-    lf.close();
-  }
-}
-
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
@@ -60,16 +45,11 @@ void setup() {
   }
 
   Serial.println("\n已連線！IP: " + WiFi.localIP().toString());
-  // #region agent log
-  debugLog("before-fix", "H4", "update.ino:setup", "wifi_connected", "{\"status\":1}");
-  // #endregion
 
   // 初始化 SPI 從機
   slave.setDataMode(SPI_MODE0);           // default: SPI_MODE0
   slave.setMaxTransferSize(1024);  // default: 4092 bytes
   slave.setQueueSize(1);         // default: 1
-  
-
 
   LittleFS.begin(true);
 
