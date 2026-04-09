@@ -2,6 +2,10 @@
 
 這是一個為了面試展示與嵌入式學習而完成的多板協作專案。專案結合了 STM32 主程式、STM32 自製 Bootloader，以及 ESP32 OTA 中介模組，完整展示了韌體更新流程、即時系統任務切分、周邊整合與嵌入式 UI 設計能力。
 
+## 影片展示
+[![IMAGE ALT TEXT](http://img.youtube.com/vi/0_hPqN99BIs/0.jpg)](https://www.youtube.com/watch?v=0_hPqN99BIs "menu影片展示")
+[![IMAGE ALT TEXT](http://img.youtube.com/vi/KB_hysiqWno/0.jpg)](https://www.youtube.com/watch?v=KB_hysiqWno "更新展示")
+
 ## 專案簡介
 
 整個系統主要分成三個部分：
